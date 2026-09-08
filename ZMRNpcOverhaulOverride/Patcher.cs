@@ -75,16 +75,20 @@ public class Patcher(IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
                 patchNpc.WornArmor.FormKey = npc.WornArmor.FormKey;
             }
 
-            // BUG: Synthesis has trouble copying names onto patchNpc.
-            // Help it out by forwarding from the winningOverride, if it exists.
-            if (winningOverride.Name?.String is not null)
+            // BUG: If winning overrides is length of 1, meaning that it's the master mod
+            // and my patch, then the Name and ShortName fields will be null.
+            // Not sure why this happens, but copy from ZMR NPC Overhaul.esl to my patch  to fix this issue.
+            if (winningOverrides.Count == 1)
             {
-                patchNpc.Name = winningOverride.Name.DeepCopy();
-            }
+                if (npc.Name?.String is not null)
+                {
+                    patchNpc.Name = npc.Name.DeepCopy();
+                }
 
-            if (winningOverride.ShortName?.String is not null)
-            {
-                patchNpc.ShortName = winningOverride.ShortName.DeepCopy();
+                if (npc.ShortName?.String is not null)
+                {
+                    patchNpc.ShortName = npc.ShortName.DeepCopy();
+                }
             }
 
     
