@@ -49,10 +49,13 @@ public class Patcher(IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
             patchNpc.HeadParts.AddRange(npc.HeadParts);
 
             patchNpc.FaceMorph = npc.FaceMorph?.DeepCopy();
-            patchNpc.FaceParts?.Clear();
+
+            patchNpc.TextureLighting = npc.TextureLighting;
+            patchNpc.Height = npc.Height;
 
             if (npc.FaceParts is not null)
             {
+                patchNpc.FaceParts?.Clear();
                 patchNpc.FaceParts = npc.FaceParts.DeepCopy();
             }
 
