@@ -40,6 +40,8 @@ public class Patcher(IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
             
             var overrides = allOverrides.Where(x => x.FormKey == npc.FormKey).ToList();
 
+            var recordReferenceCount = state.LoadOrder.PriorityOrder.Select(x => x.Mod).NotNull().Count(x => x.Npcs.Contains(npc));
+
             var patchNpc = state.PatchMod.Npcs.GetOrAddAsOverride(winningOverride);
 
             patchNpc.TintLayers.Clear();
@@ -78,7 +80,7 @@ public class Patcher(IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
             // BUG: If winning overrides is length of 1, meaning that it's the master mod
             // and my patch, then the Name and ShortName fields will be null.
             // Not sure why this happens, but copy from ZMR NPC Overhaul.esl to my patch  to fix this issue.
-            if (winningOverrides.Count == 1)
+            if (recordReferenceCount == 2)
             {
                 if (npc.Name?.String is not null)
                 {
