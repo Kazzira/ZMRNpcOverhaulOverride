@@ -27,7 +27,7 @@ public class Patcher(IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
 
         var allOverrides = state.LoadOrder.PriorityOrder.Reverse().Select(x => x.Mod).NotNull().SelectMany(x => x.Npcs).Where(x => OverhaulFormIDs.Contains(x.FormKey)).ToList();
 
-        var npcLoadOrder = state.LoadOrder.PriorityOrder.Where(x => x.ModKey.FileName.String != "ZMR NPC Overhaul.esl").Select(x => x.Mod).NotNull().ToArray();
+        var npcLoadOrder = state.LoadOrder.PriorityOrder.Where(x => x.ModKey.FileName.String != "ZMR NPC Overhaul.esl").Select(x => x.Mod).NotNull().Where(x => x.Npcs.Any()).ToArray();
 
         foreach (var npc in NpcOverhaul.Npcs)
         {
