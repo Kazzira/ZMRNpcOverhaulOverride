@@ -60,18 +60,17 @@ public class Patcher(IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
                 patchNpc.FaceParts = npc.FaceParts.DeepCopy();
             }
 
-            if (npc.HeadTexture is not null)
+            if (!npc.HeadTexture.IsNull)
             {
                 patchNpc.HeadTexture.FormKey = npc.HeadTexture.FormKey;
             }
 
-            if (npc.HairColor is not null)
+            if (!npc.HairColor.IsNull)
             {
                 patchNpc.HairColor.FormKey = npc.HairColor.FormKey;
             }
 
-            // skin (WNAM) record.
-            if (npc.WornArmor is not null)
+            if (!npc.WornArmor.IsNull)
             {
                 patchNpc.WornArmor.FormKey = npc.WornArmor.FormKey;
             }
