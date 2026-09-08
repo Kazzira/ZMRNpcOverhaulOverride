@@ -75,6 +75,18 @@ public class Patcher(IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
                 patchNpc.WornArmor.FormKey = npc.WornArmor.FormKey;
             }
 
+            // BUG: Synthesis has trouble copying names onto patchNpc.
+            // Help it out by forwarding from the winningOverride, if it exists.
+            if (winningOverride.Name?.String is not null)
+            {
+                patchNpc.Name = winningOverride.Name.DeepCopy();
+            }
+
+            if (winningOverride.ShortName?.String is not null)
+            {
+                patchNpc.ShortName = winningOverride.ShortName.DeepCopy();
+            }
+
     
             if (npc.DefaultOutfit.FormKey != patchNpc.DefaultOutfit.FormKey)
             {
