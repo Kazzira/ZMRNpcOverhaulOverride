@@ -29,6 +29,9 @@ public class Patcher(IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
 
         var npcLoadOrder = state.LoadOrder.PriorityOrder.Where(x => x.ModKey.FileName.String != "ZMR NPC Overhaul.esl").Select(x => x.Mod).NotNull().Where(x => x.Npcs.Any()).ToArray();
 
+        var totalNpcs = NpcOverhaul.Npcs.Count();
+        var processedNpcs = 0;
+
         foreach (var npc in NpcOverhaul.Npcs)
         {
             var winningOverride = winningOverrides.First(x => x.FormKey == npc.FormKey);
@@ -42,7 +45,10 @@ public class Patcher(IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
             
             var overrides = allOverrides.Where(x => x.FormKey == npc.FormKey).ToList();
 
-            var recordReferenceCount = npcLoadOrder.Count(x => x.Npcs.Contains(npc));
+            Console.WriteLine($"Processing NPC {processedNpcs + 1}/{totalNpcs}: {npc.FormKey} - {npc.EditorID}");
+            processedNpcs++;
+
+            var recordReferenceCount = npcLoadOrder.Count(x => x.Npcs.Any(x => x.FormKey == npc.FormKey));
 
             var patchNpc = state.PatchMod.Npcs.GetOrAddAsOverride(winningOverride);
 
@@ -82,7 +88,7 @@ public class Patcher(IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
             // BUG: If winning overrides is length of 1, meaning that it's the master mod
             // and my patch, then the Name and ShortName fields will be null.
             // Not sure why this happens, but copy from ZMR NPC Overhaul.esl to my patch  to fix this issue.
-            if (recordReferenceCount == 2)
+            if (recordReferenceCount == 1)
             {
                 if (npc.Name?.String is not null)
                 {
