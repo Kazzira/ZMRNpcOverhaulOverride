@@ -43,9 +43,12 @@ public class Patcher(IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
         {
             foreach (var npc in npcs)
             {
-                if (npcToReferenceCount.ContainsKey(npc.FormKey))
+                foreach (var plugin in npcLoadOrder)
                 {
-                    npcToReferenceCount[npc.FormKey]++;
+                    if (plugin.Npcs.Select(x => x.FormKey).Contains(npc.FormKey))
+                    {
+                        npcToReferenceCount[npc.FormKey]++;
+                    }
                 }
             }
         }
