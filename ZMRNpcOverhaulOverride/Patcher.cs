@@ -20,7 +20,7 @@ public class Patcher(IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
         }
 
         var OverhaulFormIDs = NpcOverhaul.Npcs.Select(x => x.FormKey).ToList();
-        var winningOverrides = state.LoadOrder.PriorityOrder.Npc().WinningOverrides().Where(x => OverhaulFormIDs.Contains(x.FormKey)).ToList();
+        var winningOverrides = state.LoadOrder.PriorityOrder.Where(x => x.ModKey.FileName.String != "ZMR NPC Overhaul.esl").Npc().WinningOverrides().Where(x => OverhaulFormIDs.Contains(x.FormKey)).ToList();
         var masterFileNames  = NpcOverhaul.MasterReferences.Select(x => x.Master.FileName).ToList();
         var MasterFiles = state.LoadOrder.PriorityOrder.Reverse().Where(x => masterFileNames.Contains(x.ModKey.FileName)).ToList();
         var NPCMasters = MasterFiles.Select(x => x.Mod).NotNull().SelectMany(x => x.Npcs).Where(x => OverhaulFormIDs.Contains(x.FormKey)).ToList();
@@ -59,7 +59,10 @@ public class Patcher(IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
                 patchNpc.FaceParts = npc.FaceParts.DeepCopy();
             }
 
-            patchNpc.HeadTexture.FormKey = npc.HeadTexture.FormKey;
+            if (npc.HeadTexture is not null)
+            {
+                patchNpc.HeadTexture.FormKey = npc.HeadTexture.FormKey;
+            }
 
             patchNpc.HairColor.FormKey = npc.HairColor.FormKey;
 
