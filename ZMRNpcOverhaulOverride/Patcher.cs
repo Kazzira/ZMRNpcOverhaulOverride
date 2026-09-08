@@ -32,6 +32,36 @@ public class Patcher(IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
         var totalNpcs = NpcOverhaul.Npcs.Count();
         var processedNpcs = 0;
 
+        var npcToReferenceCount = new Dictionary<Mutagen.Bethesda.Plugins.FormKey, int>();
+
+        foreach (var npc in NpcOverhaul.Npcs)
+        {
+            npcToReferenceCount[npc.FormKey] = 0;
+        }
+
+        void CountReferences(INpcGetter[] npcs)
+        {
+            foreach (var npc in npcs)
+            {
+                if (npcToReferenceCount.ContainsKey(npc.FormKey))
+                {
+                    npcToReferenceCount[npc.FormKey]++;
+                }
+            }
+        }
+
+        var tasks = new List<Task>();
+        // Divide NpcOverhaul.Npcs into 30 separate chunk arrays and process them in parallel.
+        var chunkSize = (int)Math.Ceiling((double)NpcOverhaul.Npcs.Count() / 30);
+        var npcChunks = NpcOverhaul.Npcs.Chunk(chunkSize).ToArray();
+        for (int i = 0; i < npcChunks.Length; i++)
+        {
+            var chunk = npcChunks[i];
+            tasks.Add(Task.Run(() => CountReferences(chunk)));
+        }
+
+        Task.WaitAll(tasks);
+
         foreach (var npc in NpcOverhaul.Npcs)
         {
             var winningOverride = winningOverrides.First(x => x.FormKey == npc.FormKey);
@@ -48,7 +78,7 @@ public class Patcher(IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
             Console.WriteLine($"Processing NPC {processedNpcs + 1}/{totalNpcs}: {npc.FormKey} - {npc.EditorID}");
             processedNpcs++;
 
-            var recordReferenceCount = npcLoadOrder.Count(x => x.Npcs.Any(x => x.FormKey == npc.FormKey));
+            var recordReferenceCount = npcToReferenceCount[npc.FormKey];
 
             var patchNpc = state.PatchMod.Npcs.GetOrAddAsOverride(winningOverride);
 
@@ -69,20 +99,36 @@ public class Patcher(IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
                 patchNpc.FaceParts?.Clear();
                 patchNpc.FaceParts = npc.FaceParts.DeepCopy();
             }
+            else
+            {
+                patchNpc.FaceParts = null;
+            }
 
             if (!npc.HeadTexture.IsNull)
             {
                 patchNpc.HeadTexture.FormKey = npc.HeadTexture.FormKey;
+            }
+            else
+            {
+                patchNpc.HeadTexture.Clear();
             }
 
             if (!npc.HairColor.IsNull)
             {
                 patchNpc.HairColor.FormKey = npc.HairColor.FormKey;
             }
+            else
+            {
+                patchNpc.HairColor.Clear();
+            }
 
             if (!npc.WornArmor.IsNull)
             {
                 patchNpc.WornArmor.FormKey = npc.WornArmor.FormKey;
+            }
+            else
+            {
+                patchNpc.WornArmor.Clear();
             }
 
             // BUG: If winning overrides is length of 1, meaning that it's the master mod
