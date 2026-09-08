@@ -52,6 +52,7 @@ public class Patcher(IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
 
             patchNpc.TextureLighting = npc.TextureLighting;
             patchNpc.Height = npc.Height;
+            patchNpc.Weight = npc.Weight;
 
             if (npc.FaceParts is not null)
             {
@@ -64,17 +65,24 @@ public class Patcher(IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
                 patchNpc.HeadTexture.FormKey = npc.HeadTexture.FormKey;
             }
 
-            patchNpc.HairColor.FormKey = npc.HairColor.FormKey;
+            if (npc.HairColor is not null)
+            {
+                patchNpc.HairColor.FormKey = npc.HairColor.FormKey;
+            }
 
-            // For the outfits, keep the overhaul if present, however if there exists an override with Zod Mod Resources.esm,
-            // then use that instead.
+            // skin (WNAM) record.
+            if (npc.WornArmor is not null)
+            {
+                patchNpc.WornArmor.FormKey = npc.WornArmor.FormKey;
+            }
+
     
-            if (npc.DefaultOutfit.FormKey.ModKey.FileName.String == "Zod Mod Resources.esm" && patchNpc.DefaultOutfit.FormKey.ModKey.FileName.String != "Zod Mod Resources.esm")
+            if (npc.DefaultOutfit.FormKey != patchNpc.DefaultOutfit.FormKey)
             {
                 patchNpc.DefaultOutfit.FormKey = npc.DefaultOutfit.FormKey;
             }
 
-            if (patchNpc.SleepingOutfit.FormKey.ModKey.FileName.String == "Zod Mod Resources.esm" && npc.SleepingOutfit.FormKey.ModKey.FileName.String != "Zod Mod Resources.esm")
+            if (npc.SleepingOutfit.FormKey != patchNpc.SleepingOutfit.FormKey)
             {
                 patchNpc.SleepingOutfit.FormKey = npc.SleepingOutfit.FormKey;
             }
